@@ -3,13 +3,22 @@ from abc import ABC, abstractmethod
 
 
 class GameAction(Enum):
-    DO_NOTHING = 0
-    START_GAME = 5
+    START_SESSION = 5
     EXIT_GAME = 10
 
 
+class SessionAction(Enum):
+    PAUSE_SESSION = 0
+    CONTINUE_SESSION = 1
+    EXIT_SESSION = 10
+
+
 # Agent is an entity that controls the game flow.
-class Agent(ABC):
+class Player(ABC):
     @abstractmethod
     def get_game_action(self) -> GameAction:
+        pass
+
+    @abstractmethod
+    def get_session_action(self) -> SessionAction:
         pass
