@@ -12,7 +12,7 @@ class GuiPlayer(Player):
             return GameAction.PASS
         if self._renderer.get_key().lower() in {'q'}:
             return GameAction.EXIT_GAME
-        if self._renderer.get_key().lower() in {'\n'}:
+        if self._renderer.get_key() in {'\n', '\r'}:
             return GameAction.START_SESSION
         return GameAction.PASS
 

@@ -1,5 +1,7 @@
+import time
 from typing import Callable
 from .level_state import LevelState
+
 
 class Level:
     def __init__(
@@ -17,11 +19,12 @@ class Level:
         self._callbacks.append(callback)
 
     def run(self) -> None:
-        pass
+        time.sleep(1)
 
     @staticmethod
     def generate_level(
             maze_width: int,
             maze_height: int,
     ) -> 'Level':
-        pass
+        time.sleep(3)
+        return Level()

@@ -34,9 +34,14 @@ class Session:
     def add_on_state_changed_callback(self, callback: Callable[[SessionState], None]) -> None:
         self._callbacks.append(callback)
 
+    def _run_callbacks(self) -> None:
+        for callback in self._callbacks:
+            callback(self.state)
+
     def run(self) -> None:
         # start session
         for level in range(1, 999):
+            self._run_callbacks()
             self.level = Level.generate_level(level + 10, level + 10)
             self.state.level_state = self.level.state
             for callback in self._callbacks:
