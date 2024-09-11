@@ -3,19 +3,7 @@ from typing import Callable
 from .player import Player
 from .level.level import Level, LevelState
 from .level.agent import Agent
-
-
-class SessionState:
-    def __init__(self) -> None:
-        self._level_state = None
-
-    @property
-    def level_state(self) -> LevelState | None:
-        return self._level_state
-
-    @level_state.setter
-    def level_state(self, state: LevelState) -> None:
-        self._level_state = state
+from .session_state import SessionState
 
 
 class Session:

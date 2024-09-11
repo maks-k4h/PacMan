@@ -1,12 +1,5 @@
 from typing import Callable
-
-
-class LevelState:
-    def __init__(self):
-        maze = None
-        ghosts = None
-        pacman = None
-
+from .level_state import LevelState
 
 class Level:
     def __init__(

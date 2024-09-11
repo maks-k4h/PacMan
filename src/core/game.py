@@ -1,21 +1,9 @@
 from typing import Callable
 
-from .session import Session, SessionState
-from .player import Player, GameAction, SessionAction
+from .game_state import GameState
+from .session import Session
+from .player import Player, GameAction
 from .level.agent import Agent
-
-
-class GameState:
-    def __init__(self) -> None:
-        self._current_session = None
-
-    @property
-    def session_state(self) -> SessionState | None:
-        return self._current_session
-
-    @session_state.setter
-    def session_state(self, session_state: SessionState | None) -> None:
-        self._current_session = session_state
 
 
 class Game:
@@ -50,17 +38,23 @@ class Game:
     def add_on_state_changed_callback(self, callback: Callable[[GameState], None]) -> None:
         self._callbacks.append(callback)
 
+    def _run_callbacks(self) -> None:
+        for callback in self._callbacks:
+            callback(self.state)
+
     def run(self) -> None:
         while True:
-            game_action = self._player.get_game_action()
+            self._run_callbacks()
+            game_action = self._player.get_game_action(self.state)
             if game_action == GameAction.START_SESSION:
                 self._run_session()
             elif game_action == GameAction.EXIT_GAME:
-                return
-            elif game_action is None:
+                break
+            elif game_action == GameAction.PASS:
                 pass
             else:
                 raise NotImplementedError(f'Unknown game action: {game_action}')
+        self._run_callbacks()
 
     def _run_session(self) -> None:
         self.session = Session(
