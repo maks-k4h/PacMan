@@ -46,6 +46,7 @@ class Game:
         while True:
             self._run_callbacks()
             game_action = self._player.get_game_action(self.state)
+            print(game_action)
             if game_action == GameAction.START_SESSION:
                 self._run_session()
             elif game_action == GameAction.EXIT_GAME:

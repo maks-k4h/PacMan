@@ -1,7 +1,7 @@
 from typing import Callable
 
 from .player import Player
-from .level.level import Level, LevelState
+from .level.level import Level, LevelState, LevelExitCode
 from .level.agent import Agent
 from .session_state import SessionState
 
@@ -18,6 +18,7 @@ class Session:
         self._callbacks = []
 
         self._level = None
+        self._player = player
 
     @property
     def state(self) -> SessionState:
@@ -42,9 +43,14 @@ class Session:
         # start session
         for level in range(1, 999):
             self._run_callbacks()
-            self.level = Level.generate_level(level + 10, level + 10)
+            self.level = Level.generate_level(
+                player=self._player,
+                maze_width=level + 10,
+                maze_height=level + 10)
             self.state.level_state = self.level.state
             for callback in self._callbacks:
-                self.level.add_on_update_callback(lambda _: callback(self.state))
+                self.level.add_on_update_callback(lambda _: callback(self.state.level_state))
             self.level.run()
+            if self.level.state.exit_code == LevelExitCode.EXITED:
+                return
             self.level = None

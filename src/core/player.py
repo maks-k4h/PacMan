@@ -2,6 +2,8 @@ from enum import Enum
 from abc import ABC, abstractmethod
 
 from .game_state import GameState
+from .session_state import SessionState
+from .level.level_state import LevelState
 
 
 class GameAction(Enum):
@@ -12,9 +14,13 @@ class GameAction(Enum):
 
 class SessionAction(Enum):
     PASS = 0
-    PAUSE_SESSION = 5
-    RESUME_SESSION = 6
-    EXIT_SESSION = 10
+
+
+class LevelAction(Enum):
+    PASS = 0
+    PAUSE_GAME = 5
+    RESUME_GAME = 6
+    EXIT_GAME = 10
 
 
 # Agent is an entity that controls the game flow.
@@ -24,5 +30,9 @@ class Player(ABC):
         pass
 
     @abstractmethod
-    def get_session_action(self, state: GameState) -> SessionAction:
+    def get_session_action(self, state: SessionAction) -> SessionAction:
+        pass
+
+    @abstractmethod
+    def get_level_action(self, state: LevelState) -> LevelAction:
         pass

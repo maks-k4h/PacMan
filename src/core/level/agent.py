@@ -14,7 +14,7 @@ class Agent:
         return self._previous_cell
 
     @previous_cell.setter
-    def previous_cell(self, cell: tuple[int, int]| None) -> None:
+    def previous_cell(self, cell: tuple[int, int] | None) -> None:
         self._previous_cell = cell
 
     @property

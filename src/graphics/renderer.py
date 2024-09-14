@@ -62,19 +62,9 @@ class Renderer:
         return screen.render()
 
     def _render_session_screen(self, game_state: GameState) -> np.ndarray:
-        canvas = np.zeros((self._height, self._width, 3), dtype=np.uint8)
-        canvas[:, :] += np.array([30, 0, 0], dtype=np.uint8)
-        cv2.putText(canvas,
-                    'Starting the game...',
-                    (canvas.shape[1] // 2 - 80, canvas.shape[0] // 2 - 10),
-                    cv.FONT_HERSHEY_SIMPLEX, .6, (0, 255, 0), 2)
-        return canvas
+        screen = screens.session.SessionScreen(game_state.session_state, height=self._height, width=self._width)
+        return screen.render()
 
     def _render_level_screen(self, game_state: GameState) -> np.ndarray:
-        canvas = np.zeros((self._height, self._width, 3), dtype=np.uint8)
-        canvas[:, :] += np.array([30, 0, 0], dtype=np.uint8)
-        cv2.putText(canvas,
-                    'Level',
-                    (canvas.shape[1] // 2 - 50, canvas.shape[0] // 2 - 10),
-                    cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        return canvas
+        screen = screens.level.LevelScreen(game_state.session_state.level_state, height=self._height, width=self._width)
+        return screen.render()
