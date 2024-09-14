@@ -5,7 +5,7 @@ import cv2
 import cv2 as cv
 import numpy as np
 
-from . import utils
+from . import screens, utils
 from ..core.game import GameState
 
 
@@ -58,10 +58,8 @@ class Renderer:
         return canvas
 
     def _render_home_screen(self, game_state: GameState) -> np.ndarray:
-        canvas = np.zeros((self._height, self._width, 3), dtype=np.uint8)
-        canvas[:, :] += np.array([30, 0, 0], dtype=np.uint8)
-        cv2.putText(canvas, 'Home', (40, 40), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        return canvas
+        screen = screens.home.HomeScreen(game_state, height=self._height, width=self._width)
+        return screen.render()
 
     def _render_session_screen(self, game_state: GameState) -> np.ndarray:
         canvas = np.zeros((self._height, self._width, 3), dtype=np.uint8)
