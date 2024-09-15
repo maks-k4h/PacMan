@@ -1,5 +1,7 @@
 from enum import Enum
 
+from .maze import Maze
+
 
 class LevelExitCode(Enum):
     PASSED = 0
@@ -8,11 +10,11 @@ class LevelExitCode(Enum):
 
 
 class LevelState:
-    def __init__(self):
+    def __init__(self, maze: Maze):
         self._is_paused = False
         self._exit_code = None
 
-        maze = None
+        self._maze = maze
         ghosts = None
         pacman = None
 
@@ -31,3 +33,11 @@ class LevelState:
     @exit_code.setter
     def exit_code(self, exit_code: LevelExitCode | None) -> None:
         self._exit_code = exit_code
+
+    @property
+    def maze(self) -> Maze:
+        return self._maze
+
+    @maze.setter
+    def maze(self, maze: Maze) -> None:
+        self._maze = maze

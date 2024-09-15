@@ -67,4 +67,4 @@ class Game:
         for callback in self._callbacks:
             self.session.add_on_state_changed_callback(lambda _: callback(self.state))
         self.session.run()
-        self.session = None
+        self.state.session_state = self.session = None

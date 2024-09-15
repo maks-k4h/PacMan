@@ -1,6 +1,7 @@
 import time
 from typing import Callable
 from .level_state import LevelState, LevelExitCode
+from .maze import Maze
 from ..player import Player, LevelAction
 
 
@@ -8,8 +9,9 @@ class Level:
     def __init__(
             self,
             player: Player,
+            maze: Maze,
     ) -> None:
-        self._state = LevelState()
+        self._state = LevelState(maze=maze)
         self._player = player
 
         self._callbacks = []
@@ -47,4 +49,7 @@ class Level:
             maze_height: int,
     ) -> 'Level':
         time.sleep(1)
-        return Level(player=player)
+        return Level(
+            player=player,
+            maze=Maze.generate_maze(height=maze_height, width=maze_width),
+        )
