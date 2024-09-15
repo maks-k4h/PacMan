@@ -3,21 +3,21 @@ from typing import Callable
 from .game_state import GameState
 from .session import Session
 from .player import Player, GameAction
-from .level.agent import Agent
+from .level.agent_factory import AgentFactory
 
 
 class Game:
     def __init__(
             self,
             player: Player,
-            pacman_agent: Agent,
-            ghost_agents: list[Agent],
+            pacman_factory: AgentFactory,
+            ghost_factory: AgentFactory,
     ) -> None:
         self._player = player
         self._state = GameState()
 
-        self._pacman_agent = pacman_agent
-        self._ghost_agents = ghost_agents
+        self._pacman_factory = pacman_factory
+        self._ghost_factory = ghost_factory
 
         self._session = None
 
@@ -46,7 +46,6 @@ class Game:
         while True:
             self._run_callbacks()
             game_action = self._player.get_game_action(self.state)
-            print(game_action)
             if game_action == GameAction.START_SESSION:
                 self._run_session()
             elif game_action == GameAction.EXIT_GAME:
@@ -60,8 +59,8 @@ class Game:
     def _run_session(self) -> None:
         self.session = Session(
             player=self._player,
-            pacman_agent=self._pacman_agent,
-            ghost_agents=self._ghost_agents,
+            pacman_factory=self._pacman_factory,
+            ghost_factory=self._ghost_factory,
         )
         self.state.session_state = self.session.state
         for callback in self._callbacks:

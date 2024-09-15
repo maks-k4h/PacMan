@@ -2,7 +2,7 @@ from typing import Callable
 
 from .player import Player
 from .level.level import Level, LevelState, LevelExitCode
-from .level.agent import Agent
+from .level.agent_factory import AgentFactory
 from .session_state import SessionState
 
 
@@ -10,8 +10,8 @@ class Session:
     def __init__(
             self,
             player: Player,
-            pacman_agent: Agent,
-            ghost_agents: list[Agent],
+            pacman_factory: AgentFactory,
+            ghost_factory: AgentFactory,
     ) -> None:
         self._session_state = SessionState()
 
@@ -19,6 +19,8 @@ class Session:
 
         self._level = None
         self._player = player
+        self._pacman_factory = pacman_factory
+        self._ghost_factory = ghost_factory
 
     @property
     def state(self) -> SessionState:
@@ -46,7 +48,10 @@ class Session:
             self.level = Level.generate_level(
                 player=self._player,
                 maze_width=level + 10,
-                maze_height=level + 10)
+                maze_height=level + 10,
+                pacman_factory=self._pacman_factory,
+                ghost_factory=self._ghost_factory,
+            )
             self.state.level_state = self.level.state
             for callback in self._callbacks:
                 self.level.add_on_update_callback(lambda _: callback(self.state.level_state))

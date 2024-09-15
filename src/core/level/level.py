@@ -1,7 +1,11 @@
 import time
 from typing import Callable
+
+import numpy as np
+
 from .level_state import LevelState, LevelExitCode
 from .maze import Maze
+from .agent_factory import AgentFactory, Agent
 from ..player import Player, LevelAction
 
 
@@ -10,8 +14,9 @@ class Level:
             self,
             player: Player,
             maze: Maze,
+            pacman: Agent,
     ) -> None:
-        self._state = LevelState(maze=maze)
+        self._state = LevelState(maze=maze, pacman=pacman)
         self._player = player
 
         self._callbacks = []
@@ -47,9 +52,22 @@ class Level:
             player: Player,
             maze_width: int,
             maze_height: int,
+            pacman_factory: AgentFactory,
+            ghost_factory: AgentFactory
     ) -> 'Level':
-        time.sleep(1)
+        # Create map
+        maze = Maze.generate_maze(height=maze_height, width=maze_width)
+
+        # Spawn pacman
+        def get_pacman() -> Agent:
+            for x in range(1, maze.width - 1):
+                for y in range(1, maze.height - 1):
+                    if maze.is_passable(x, y):
+                        return pacman_factory.create_agent(cell=(x, y))
+        pacman = get_pacman()
+
         return Level(
             player=player,
-            maze=Maze.generate_maze(height=maze_height, width=maze_width),
+            maze=maze,
+            pacman=pacman
         )

@@ -1,2 +1,2 @@
-from .gui_pacman import GuiPacman
-from .ai_ghost import AiGhost
+from .gui_pacman_factory import GuiPacmanFactory
+from .ai_ghost_factory import AIGhostFactory
