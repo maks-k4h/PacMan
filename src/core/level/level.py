@@ -24,6 +24,8 @@ class Level:
         self._callbacks = []
         self._next_direction = None
 
+        self._is_running = True
+
     @property
     def state(self) -> LevelState:
         return self._state
@@ -37,7 +39,7 @@ class Level:
 
     def run(self):
         self._run_callbacks()
-        while True:
+        while self._is_running:
             action = self._player.get_level_action(self.state)
             if action == LevelAction.PASS:
                 self._update()
@@ -51,6 +53,14 @@ class Level:
             self._run_callbacks()
 
     def _update(self) -> None:
+        # Coins
+        if self.state.maze.coins_left == 0:
+            self._is_running = False
+
+        if self.state.maze.has_coin(*self.state.pacman.current_cell):
+            self.state.maze.eat_coin(*self.state.pacman.current_cell)
+
+        # Pacman
         action = self.state.pacman.get_action()
         if action == AgentAction.MOVE_RIGHT:
             self._next_direction = 0

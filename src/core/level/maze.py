@@ -10,6 +10,7 @@ class Maze:
             binary_maze: np.ndarray,
     ) -> None:
         self._maze = binary_maze
+        self._coins = ~binary_maze
 
     @property
     def width(self) -> int:
@@ -21,6 +22,17 @@ class Maze:
 
     def is_passable(self, x: int, y: int) -> bool:
         return not bool(self._maze[y, x])
+
+    def has_coin(self, x: int, y: int) -> bool:
+        return bool(self._coins[y, x])
+
+    @property
+    def coins_left(self) -> int:
+        return self._coins.sum()
+
+    def eat_coin(self, x: int, y: int):
+        assert self.has_coin(x, y)
+        self._coins[y, x] = False
 
     @staticmethod
     def generate_maze(height: int, width: int) -> 'Maze':

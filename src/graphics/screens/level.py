@@ -39,6 +39,7 @@ class LevelScreen(screen.Screen):
             cv.putText(canvas, "Exit (q)", (self._w // 2 + 100 - 45, self._h//2), cv.FONT_HERSHEY_SIMPLEX, .7, (0, 255, 0), 2)
         else:
             canvas = self._render_maze(canvas)
+            canvas = self._render_coins(canvas)
             canvas = self._render_pacman(canvas)
 
         self._frame_count += 1
@@ -68,12 +69,24 @@ class LevelScreen(screen.Screen):
 
         return canvas
 
+    def _render_coins(self, canvas: np.ndarray) -> np.ndarray:
+        for y in range(self._state.maze.height):
+            for x in range(self._state.maze.width):
+                if self._state.maze.has_coin(x, y):
+                    coin_c = (
+                        int(self._maze_x + self._cell_size * (x + .5)),
+                        int(self._maze_y + self._cell_size * (y + .5)),
+                    )
+                    cv.circle(canvas, coin_c, int(self._cell_size * .5 * .2), (0, 204, 255), -1)
+        return canvas
+
     def _render_pacman(self, canvas: np.ndarray) -> np.ndarray:
         pm_c = (
             int(self._maze_x + self._cell_size * (self._state.pacman.x + .5)),
             int(self._maze_y + self._cell_size * (self._state.pacman.y + .5)),
         )
         pacman_size = int(self._cell_size * .9)
+        pacman_size += pacman_size % 2
         pacman_canvas, alpha = resources.PacMan.get_canvas(
             orientation=self.state.pacman.orientation,
             mouth_state=np.sin(self._anim_speed * self._frame_count / 2) / 2 + 0.5,
