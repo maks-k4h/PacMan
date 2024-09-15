@@ -58,4 +58,7 @@ class Session:
             self.level.run()
             if self.level.state.exit_code == LevelExitCode.EXITED:
                 return
+            self._run_callbacks()
+            if self.level.state.exit_code == LevelExitCode.GAME_OVER:
+                return
             self.level = None

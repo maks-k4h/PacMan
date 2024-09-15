@@ -44,7 +44,7 @@ class Level:
         self._run_callbacks()
         while self._is_running:
             action = self._player.get_level_action(self.state)
-            if action == LevelAction.PASS:
+            if action == LevelAction.PASS and not self.state.is_paused:
                 self._update()
             elif action == LevelAction.PAUSE_GAME:
                 self.state.is_paused = True
@@ -56,9 +56,18 @@ class Level:
             self._run_callbacks()
 
     def _update(self) -> None:
+        # Collisions
+        for ghost in self.state.ghosts:
+            if self.state.pacman.current_cell == ghost.current_cell:
+                self._is_running = False
+                self.state.exit_code = LevelExitCode.GAME_OVER
+                return
+
         # Coins
         if self.state.maze.coins_left == 0:
             self._is_running = False
+            self.state.exit_code = LevelExitCode.PASSED
+            return
 
         if self.state.maze.has_coin(*self.state.pacman.current_cell):
             self.state.maze.eat_coin(*self.state.pacman.current_cell)
@@ -91,7 +100,6 @@ class Level:
                     agent.next_cell = next_cell
             agent.move()
 
-
     @staticmethod
     def generate_level(
             player: Player,
@@ -116,7 +124,7 @@ class Level:
             for x in range(maze.width - 1, -1, -1):
                 for y in range(maze.height - 1, -1, -1):
                     if maze.is_passable(x, y):
-                        ghosts.append(ghost_factory.create_agent(cell=(x, y), steps_per_cell=13))
+                        ghosts.append(ghost_factory.create_agent(cell=(x, y), steps_per_cell=15))
                     if len(ghosts) >= n:
                         return ghosts
             return ghosts
