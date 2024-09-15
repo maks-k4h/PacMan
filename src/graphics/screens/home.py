@@ -11,6 +11,10 @@ class HomeScreen(screen.Screen):
         self._w = width
         self._h = height
 
+    @property
+    def state(self) -> GameState:
+        return self._state
+
     def render(self) -> np.ndarray:
         canvas = np.zeros((self._h, self._w, 3), dtype=np.uint8)
         canvas[:, :] += np.array([30, 0, 0], dtype=np.uint8)

@@ -33,7 +33,7 @@ class Maze:
         delta_y = [0, -1, 0, 1]
         indexes = list(range(4))
 
-        ITERATIONS = max(width, 10) * max(height, 10) ** 2
+        ITERATIONS = (max(width, 10) * max(height, 10)) ** 2
         MAX_SKIPS = width * height // 25
         current_skips = 0
         current_y = 2 * random.randint(0, (height - 2) // 2) + 1

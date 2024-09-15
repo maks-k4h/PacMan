@@ -18,3 +18,7 @@ class SessionScreen(screen.Screen):
                    (0, 255, 0), 2)
 
         return canvas
+
+    @property
+    def state(self) -> SessionState:
+        return self._state

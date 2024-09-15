@@ -11,9 +11,22 @@ class PacMan:
         :param mouth_state: float in [0, 1]
         :return: uint8 BGR & float32 alpha
         """
-        canvas = np.zeros((100, 100, 3), dtype=np.uint8)
+        size = 69
+        canvas = np.zeros((size, size, 3), dtype=np.uint8)
         angle = mouth_state * 45
-        cv.ellipse(canvas, (50, 50), (45, 45), 0, angle, 360 - angle, (70, 226, 230), -1)
-        alpha = (canvas.sum(axis=-1) > 0).astype(np.float32)
+        cv.ellipse(canvas, (size // 2, size // 2), (size // 2 - 5, size // 2 - 5),
+                   0, angle, 360 - angle, (70, 226, 230), -1)
 
+        if orientation == 0:
+            pass
+        elif orientation == 1:
+            canvas = canvas.transpose((1, 0, 2))
+        elif orientation == 2:
+            canvas = canvas[:, ::-1]
+        elif orientation == 3:
+            canvas = canvas.transpose((1, 0, 2))[::-1]
+        else:
+            raise ValueError()
+
+        alpha = (canvas.sum(axis=-1) > 0).astype(np.float32)
         return canvas, alpha
