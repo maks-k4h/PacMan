@@ -17,12 +17,15 @@ class Level:
             player: Player,
             maze: Maze,
             pacman: Agent,
+            ghosts: list[Agent],
     ) -> None:
-        self._state = LevelState(maze=maze, pacman=pacman)
+        self._state = LevelState(maze=maze, pacman=pacman, ghosts=ghosts)
         self._player = player
 
         self._callbacks = []
-        self._next_direction = None
+        self._agent2next_direction: dict[Agent, int | None] = {
+            agent: None for agent in [pacman] + ghosts
+        }
 
         self._is_running = True
 
@@ -60,32 +63,34 @@ class Level:
         if self.state.maze.has_coin(*self.state.pacman.current_cell):
             self.state.maze.eat_coin(*self.state.pacman.current_cell)
 
-        # Pacman
-        action = self.state.pacman.get_action()
-        if action == AgentAction.MOVE_RIGHT:
-            self._next_direction = 0
-        elif action == AgentAction.MOVE_DOWN:
-            self._next_direction = 1
-        elif action == AgentAction.MOVE_LEFT:
-            self._next_direction = 2
-        elif action == AgentAction.MOVE_UP:
-            self._next_direction = 3
+        # Agents (pacman + ghosts)
+        for agent in [self.state.pacman] + self.state.ghosts:
+            action = agent.get_action()
+            if action == AgentAction.MOVE_RIGHT:
+                self._agent2next_direction[agent] = 0
+            elif action == AgentAction.MOVE_DOWN:
+                self._agent2next_direction[agent] = 1
+            elif action == AgentAction.MOVE_LEFT:
+                self._agent2next_direction[agent] = 2
+            elif action == AgentAction.MOVE_UP:
+                self._agent2next_direction[agent] = 3
 
-        if self.state.pacman.next_cell is None and self._next_direction is not None:
-            if self._next_direction == 0:
-                next_cell = (self.state.pacman.x + 1, self.state.pacman.y)
-            elif self._next_direction == 1:
-                next_cell = (self.state.pacman.x, self.state.pacman.y + 1)
-            elif self._next_direction == 2:
-                next_cell = (self.state.pacman.x - 1, self.state.pacman.y)
-            elif self._next_direction == 3:
-                next_cell = (self.state.pacman.x, self.state.pacman.y - 1)
-            else:
-                raise RuntimeError(f'Invalid direction: {self._next_direction}')
-            next_cell = (int(next_cell[0]), int(next_cell[1]))
-            if self.state.maze.is_passable(*next_cell):
-                self.state.pacman.next_cell = next_cell
-        self.state.pacman.move()
+            if agent.next_cell is None and self._agent2next_direction[agent] is not None:
+                if self._agent2next_direction[agent] == 0:
+                    next_cell = (agent.x + 1, agent.y)
+                elif self._agent2next_direction[agent] == 1:
+                    next_cell = (agent.x, agent.y + 1)
+                elif self._agent2next_direction[agent] == 2:
+                    next_cell = (agent.x - 1, agent.y)
+                elif self._agent2next_direction[agent] == 3:
+                    next_cell = (agent.x, agent.y - 1)
+                else:
+                    raise RuntimeError(f'Invalid direction: {self._agent2next_direction[agent]}')
+                next_cell = (int(next_cell[0]), int(next_cell[1]))
+                if self.state.maze.is_passable(*next_cell):
+                    agent.next_cell = next_cell
+            agent.move()
+
 
     @staticmethod
     def generate_level(
@@ -104,11 +109,22 @@ class Level:
                 for y in range(1, maze.height - 1):
                     if maze.is_passable(x, y):
                         return pacman_factory.create_agent(cell=(x, y), steps_per_cell=10)
-
         pacman = get_pacman()
+
+        def get_ghosts(n: 4) -> list[Agent]:
+            ghosts = []
+            for x in range(maze.width - 1, -1, -1):
+                for y in range(maze.height - 1, -1, -1):
+                    if maze.is_passable(x, y):
+                        ghosts.append(ghost_factory.create_agent(cell=(x, y), steps_per_cell=13))
+                    if len(ghosts) >= n:
+                        return ghosts
+            return ghosts
+        ghosts = get_ghosts(4)
 
         return Level(
             player=player,
             maze=maze,
-            pacman=pacman
+            pacman=pacman,
+            ghosts=ghosts,
         )

@@ -11,14 +11,13 @@ class LevelExitCode(Enum):
 
 
 class LevelState:
-    def __init__(self, maze: Maze, pacman: Agent):
+    def __init__(self, maze: Maze, pacman: Agent, ghosts: list[Agent]):
         self._is_paused = False
         self._exit_code = None
 
         self._maze = maze
         self._pacman = pacman
-        ghosts = None
-        pacman = None
+        self._ghosts = ghosts
 
     @property
     def is_paused(self) -> bool:
@@ -43,3 +42,7 @@ class LevelState:
     @property
     def pacman(self) -> Agent:
         return self._pacman
+
+    @property
+    def ghosts(self) -> list[Agent]:
+        return self._ghosts

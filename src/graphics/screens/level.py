@@ -41,6 +41,7 @@ class LevelScreen(screen.Screen):
             canvas = self._render_maze(canvas)
             canvas = self._render_coins(canvas)
             canvas = self._render_pacman(canvas)
+            canvas = self._render_ghosts(canvas)
 
         self._frame_count += 1
 
@@ -97,4 +98,26 @@ class LevelScreen(screen.Screen):
             (1 - alpha) * canvas[pm_c[1]-pacman_size//2:pm_c[1]+pacman_size//2, pm_c[0]-pacman_size//2:pm_c[0]+pacman_size//2] +
             alpha * pacman_canvas
         )
+        return canvas
+
+    def _render_ghosts(self, canvas: np.ndarray) -> np.ndarray:
+        for i, ghost in enumerate(self._state.ghosts):
+            g_c = (
+                int(self._maze_x + self._cell_size * (ghost.x + .5)),
+                int(self._maze_y + self._cell_size * (ghost.y + .5)),
+            )
+            ghost_size = int(self._cell_size * .9)
+            ghost_size += ghost_size % 2
+            ghost_canvas, alpha = resources.Ghost.get_canvas(
+                i,
+                eye_position=np.sin(self._anim_speed * self._frame_count / 3) / 2 + 0.5,
+            )
+            pacman_canvas = cv.resize(ghost_canvas, (ghost_size, ghost_size))
+            alpha = cv.resize(alpha, (ghost_size, ghost_size))[:, :, None]
+            canvas[g_c[1] - ghost_size // 2:g_c[1] + ghost_size // 2,
+                   g_c[0] - ghost_size // 2:g_c[0] + ghost_size // 2] = (
+                    (1 - alpha) * canvas[g_c[1] - ghost_size // 2:g_c[1] + ghost_size // 2,
+                                  g_c[0] - ghost_size // 2:g_c[0] + ghost_size // 2] +
+                    alpha * pacman_canvas
+            )
         return canvas
