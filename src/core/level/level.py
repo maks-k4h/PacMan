@@ -4,6 +4,7 @@ from typing import Callable
 
 import numpy as np
 
+from . import path_finding
 from .level_state import LevelState, LevelExitCode
 from .maze import Maze
 from .agent import AgentAction, Agent
@@ -14,12 +15,14 @@ from ..player import Player, LevelAction
 class Level:
     def __init__(
             self,
+            level: int,
             player: Player,
             maze: Maze,
             pacman: Agent,
             ghosts: list[Agent],
+            n_lives: int
     ) -> None:
-        self._state = LevelState(maze=maze, pacman=pacman, ghosts=ghosts)
+        self._state = LevelState(level=level, maze=maze, pacman=pacman, ghosts=ghosts, n_lives=n_lives)
         self._player = player
 
         self._callbacks = []
@@ -59,8 +62,12 @@ class Level:
         # Collisions
         for ghost in self.state.ghosts:
             if self.state.pacman.current_cell == ghost.current_cell:
-                self._is_running = False
-                self.state.exit_code = LevelExitCode.GAME_OVER
+                if self.state.lives_left > 0:
+                    self.state.remove_life()
+                    self._respawn_pacman()
+                else:
+                    self._is_running = False
+                    self.state.exit_code = LevelExitCode.GAME_OVER
                 return
 
         # Coins
@@ -100,16 +107,43 @@ class Level:
                     agent.next_cell = next_cell
             agent.move()
 
+    def _respawn_pacman(self):
+        # find a pace in the map where the pacman will have the biggest smallest distance to a ghost
+        len_longest_shortest_path = 0
+        best_xy = None
+        for x in range(1, self.state.maze.width - 1):
+            for y in range(1, self.state.maze.height - 1):
+                if not self.state.maze.is_passable(x, y):
+                    continue
+                len_shortest_path = None
+                for ghost in self.state.ghosts:
+                    path = path_finding.DepthFirstPathFinder().find_path(
+                        self.state.maze.binary_map, (x, y), ghost.current_cell
+                    )
+                    if len_shortest_path is None or len(path) < len_shortest_path:
+                        len_shortest_path = len(path)
+                if len_shortest_path > len_longest_shortest_path:
+                    len_longest_shortest_path = len_shortest_path
+                    best_xy = (x, y)
+        assert best_xy is not None
+        self.state.pacman.move_to(*best_xy)
+        self._agent2next_direction[self.state.pacman] = None
+
     @staticmethod
     def generate_level(
+            level: int,
             player: Player,
-            maze_width: int,
-            maze_height: int,
             pacman_factory: AgentFactory,
             ghost_factory: AgentFactory
     ) -> 'Level':
+        # Define complexity
+        assert level > 0
+        maze_height = 13
+        maze_width = 11
+        obstruction_iters = 15
+
         # Create map
-        maze = Maze.generate_maze(height=maze_height, width=maze_width)
+        maze = Maze.generate_maze(height=maze_height, width=maze_width, closing_iterations=obstruction_iters)
 
         # Spawn pacman
         def get_pacman() -> Agent:
@@ -131,8 +165,10 @@ class Level:
         ghosts = get_ghosts(4)
 
         return Level(
+            level=level,
             player=player,
             maze=maze,
             pacman=pacman,
             ghosts=ghosts,
+            n_lives=min(max(level, 2), 7)
         )

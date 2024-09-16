@@ -46,9 +46,8 @@ class Session:
         for level in range(1, 999):
             self._run_callbacks()
             self.level = Level.generate_level(
+                level,
                 player=self._player,
-                maze_width=2 * level + 9,
-                maze_height=2 * level + 9,
                 pacman_factory=self._pacman_factory,
                 ghost_factory=self._ghost_factory,
             )

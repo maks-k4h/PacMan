@@ -32,6 +32,10 @@ class Maze:
     def coins_left(self) -> int:
         return self._coins.sum()
 
+    @property
+    def binary_map(self) -> np.ndarray:
+        return self._maze
+
     def eat_coin(self, x: int, y: int):
         assert self.has_coin(x, y)
         self._coins[y, x] = False

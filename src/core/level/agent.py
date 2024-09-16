@@ -83,3 +83,9 @@ class Agent(ABC):
         else:
             raise RuntimeError('Unknown orientation')
         return self._last_orientation
+
+    def move_to(self, x: int, y: int) -> None:
+        self._current_cell = (x, y)
+        self._x, self._y = x, y
+        self._next_cell = None
+        self._current_step = 0

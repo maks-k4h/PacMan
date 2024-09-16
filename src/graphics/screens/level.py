@@ -42,6 +42,8 @@ class LevelScreen(screen.Screen):
             canvas = self._render_coins(canvas)
             canvas = self._render_pacman(canvas)
             canvas = self._render_ghosts(canvas)
+            canvas = self._render_lives(canvas)
+            canvas = self._render_level_indicator(canvas)
 
         self._frame_count += 1
 
@@ -112,12 +114,31 @@ class LevelScreen(screen.Screen):
                 i,
                 eye_position=np.sin(self._anim_speed * self._frame_count / 3) / 2 + 0.5,
             )
-            pacman_canvas = cv.resize(ghost_canvas, (ghost_size, ghost_size))
+            ghost_canvas = cv.resize(ghost_canvas, (ghost_size, ghost_size))
             alpha = cv.resize(alpha, (ghost_size, ghost_size))[:, :, None]
             canvas[g_c[1] - ghost_size // 2:g_c[1] + ghost_size // 2,
                    g_c[0] - ghost_size // 2:g_c[0] + ghost_size // 2] = (
                     (1 - alpha) * canvas[g_c[1] - ghost_size // 2:g_c[1] + ghost_size // 2,
                                   g_c[0] - ghost_size // 2:g_c[0] + ghost_size // 2] +
-                    alpha * pacman_canvas
+                    alpha * ghost_canvas
             )
+        return canvas
+
+    def _render_lives(self, canvas: np.ndarray) -> np.ndarray:
+        pacman_canvas, alpha = resources.PacMan.get_canvas(0, 1)
+        size = int(self._cell_size * 0.7)
+        pacman_canvas = cv.resize(pacman_canvas, (size, size))
+        alpha = cv.resize(alpha, (size, size))[:, :, None]
+
+        x0 = int(self._maze_x + 5)
+        y0 = int(self._maze_y + self._cell_size * self.state.maze.height + 5)
+        for i in range(self._state.lives_left):
+            x = x0 + i * int(size * 0.8)
+            canvas[y0:y0+size, x:x+size] = alpha * pacman_canvas + (1 - alpha) * canvas[y0:y0+size, x:x+size]
+
+        return canvas
+
+    def _render_level_indicator(self, canvas: np.ndarray) -> np.ndarray:
+        cv.putText(canvas, f'Lvl {self.state.level:03}', (self._maze_x, self._maze_y - 20), cv.FONT_HERSHEY_SIMPLEX,
+                   .6, (0, 255, 0), 1)
         return canvas
