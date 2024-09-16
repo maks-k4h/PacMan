@@ -2,6 +2,8 @@ import random
 
 import numpy as np
 
+from . import path_finding
+
 
 class Maze:
     # the maze is binary...
@@ -35,38 +37,34 @@ class Maze:
         self._coins[y, x] = False
 
     @staticmethod
-    def generate_maze(height: int, width: int) -> 'Maze':
+    def generate_maze(height: int, width: int, closing_iterations: int = 10) -> 'Maze':
         assert height > 2 and width > 2, (height, width)
         assert height % 2 == 1 and width % 2 == 1, (height, width)
 
-        map = np.ones((height, width), dtype=bool)
+        map = np.zeros((height, width), dtype=bool)
+        map[0, :] = map[-1, :] = map[:, 0] = map[:, -1] = True
+        map[::2, ::2] = True
 
-        delta_x = [1, 0, -1, 0]
-        delta_y = [0, -1, 0, 1]
-        indexes = list(range(4))
+        # total_passages = ((height - 3) * (width - 2) + (width - 3)) // 2
+        # closing passes
+        for i in range(closing_iterations):
+            y = random.randint(1, height - 2)
+            x = 1 + y % 2 + 2 * random.randint(0, (width - 2) // 2 - y % 2)
 
-        ITERATIONS = (max(width, 10) * max(height, 10)) ** 2
-        MAX_SKIPS = width * height // 25
-        current_skips = 0
-        current_y = 2 * random.randint(0, (height - 2) // 2) + 1
-        current_x = 2 * random.randint(0, (width - 2) // 2) + 1
-        for i in range(ITERATIONS):
-            map[current_y, current_x] = False
-            random.shuffle(indexes)
-            for direction in indexes:
-                mid_x = current_x + delta_x[direction]
-                new_x = current_x + 2 * delta_x[direction]
-                mid_y = current_y + delta_y[direction]
-                new_y = current_y + 2 * delta_y[direction]
-                if not (0 < new_x < width - 1 and 0 < new_y < height - 1):
-                    continue
-                if not map[new_y, new_x] and map[mid_y, mid_x]:
-                    if random.random() > 0.1 or current_skips >= MAX_SKIPS:
-                        continue
-                    current_skips += 1
-                map[mid_y, mid_x] = False
-                map[new_y, new_x] = False
-                current_x, current_y = new_x, new_y
+            # check if blocking the passage will leave rest of the map reachable
+            x1 = x2 = x
+            y1 = y2 = y
+            if y % 2 == 0:
+                # vertical
+                y1 -= 1
+                y2 += 1
+            else:
+                x1 -= 1
+                x2 += 1
+            map[y, x] = True
+            path = path_finding.DepthFirstPathFinder().find_path(map, (x1, y1), (x2, y2))
+            if path is None:
+                map[y, x] = False  # the passage cannot be blocked
 
         return Maze(
             binary_maze=map,
