@@ -66,7 +66,7 @@ class Maze:
                 x1 -= 1
                 x2 += 1
             map[y, x] = True
-            path = path_finding.DepthFirstPathFinder().find_path(map, (x1, y1), (x2, y2))
+            path = path_finding.BreadthFirstPathFinder().find_path(map, (x1, y1), (x2, y2))
             if path is None:
                 map[y, x] = False  # the passage cannot be blocked
 

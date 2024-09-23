@@ -117,7 +117,7 @@ class Level:
                     continue
                 len_shortest_path = None
                 for ghost in self.state.ghosts:
-                    path = path_finding.DepthFirstPathFinder().find_path(
+                    path = path_finding.BreadthFirstPathFinder().find_path(
                         self.state.maze.binary_map, (x, y), ghost.current_cell
                     )
                     if len_shortest_path is None or len(path) < len_shortest_path:
