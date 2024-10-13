@@ -50,7 +50,7 @@ class Agent(ABC):
             self._y = alpha * self.next_cell[1] + (1 - alpha) * self.current_cell[1]
 
     @abstractmethod
-    def get_action(self) -> AgentAction:
+    def get_action(self, level_state) -> AgentAction:
         pass
 
     @property

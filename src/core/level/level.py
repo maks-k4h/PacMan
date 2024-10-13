@@ -81,7 +81,7 @@ class Level:
 
         # Agents (pacman + ghosts)
         for agent in [self.state.pacman] + self.state.ghosts:
-            action = agent.get_action()
+            action = agent.get_action(self.state)
             if action == AgentAction.MOVE_RIGHT:
                 self._agent2next_direction[agent] = 0
             elif action == AgentAction.MOVE_DOWN:
@@ -150,7 +150,7 @@ class Level:
             for x in range(1, maze.width - 1):
                 for y in range(1, maze.height - 1):
                     if maze.is_passable(x, y):
-                        return pacman_factory.create_agent(cell=(x, y), steps_per_cell=10)
+                        return pacman_factory.create_agent(0, cell=(x, y), steps_per_cell=10)
         pacman = get_pacman()
 
         def get_ghosts(n: 4) -> list[Agent]:
@@ -158,7 +158,7 @@ class Level:
             for x in range(maze.width - 1, -1, -1):
                 for y in range(maze.height - 1, -1, -1):
                     if maze.is_passable(x, y):
-                        ghosts.append(ghost_factory.create_agent(cell=(x, y), steps_per_cell=15))
+                        ghosts.append(ghost_factory.create_agent(len(ghosts), cell=(x, y), steps_per_cell=15))
                     if len(ghosts) >= n:
                         return ghosts
             return ghosts

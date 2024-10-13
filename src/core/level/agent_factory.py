@@ -5,5 +5,5 @@ from .agent import Agent
 
 class AgentFactory(ABC):
     @abstractmethod
-    def create_agent(self, cell: tuple[int, int], steps_per_cell: int) -> Agent:
+    def create_agent(self, identifier: int, cell: tuple[int, int], steps_per_cell: int) -> Agent:
         pass

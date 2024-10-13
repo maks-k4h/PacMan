@@ -8,5 +8,5 @@ class GuiPacmanFactory(AgentFactory):
     def __init__(self, renderer: Renderer) -> None:
         self.renderer = renderer
 
-    def create_agent(self, cell: tuple[int, int], steps_per_cell: int) -> Agent:
+    def create_agent(self, identifier: int, cell: tuple[int, int], steps_per_cell: int) -> Agent:
         return GuiPacman(cell=cell, renderer=self.renderer, steps_per_cell=steps_per_cell)

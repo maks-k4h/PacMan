@@ -1,4 +1,5 @@
 from ..core.level.agent import Agent, AgentAction
+from ..core.level.level_state import LevelState
 from ..graphics.renderer import Renderer
 
 
@@ -7,7 +8,7 @@ class GuiPacman(Agent):
         super().__init__(cell=cell, steps_per_cell=steps_per_cell)
         self._renderer = renderer
 
-    def get_action(self) -> AgentAction:
+    def get_action(self, state: LevelState) -> AgentAction:
         key = self._renderer.get_key()
         if key is None:
             return AgentAction.PASS
