@@ -142,6 +142,9 @@ class Level:
         maze_width = 11
         obstruction_iters = 15
 
+        pacman_spc = max(int(15 / np.sqrt(1 + level * 0.5)), 4)
+        ghost_spc = max(int(35 / np.sqrt(1 + level * 1.0)), 3)
+
         # Create map
         maze = Maze.generate_maze(height=maze_height, width=maze_width, closing_iterations=obstruction_iters)
 
@@ -150,7 +153,7 @@ class Level:
             for x in range(1, maze.width - 1):
                 for y in range(1, maze.height - 1):
                     if maze.is_passable(x, y):
-                        return pacman_factory.create_agent(0, cell=(x, y), steps_per_cell=10)
+                        return pacman_factory.create_agent(0, cell=(x, y), steps_per_cell=pacman_spc)
         pacman = get_pacman()
 
         def get_ghosts(n: 4) -> list[Agent]:
@@ -158,7 +161,7 @@ class Level:
             for x in range(maze.width - 1, -1, -1):
                 for y in range(maze.height - 1, -1, -1):
                     if maze.is_passable(x, y):
-                        ghosts.append(ghost_factory.create_agent(len(ghosts), cell=(x, y), steps_per_cell=15))
+                        ghosts.append(ghost_factory.create_agent(len(ghosts), cell=(x, y), steps_per_cell=ghost_spc))
                     if len(ghosts) >= n:
                         return ghosts
             return ghosts
